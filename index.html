@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@2.8.0/dist/dom-to-image-more.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -109,6 +110,7 @@
       align-items: center;
       gap: 36px;
       padding: 40px 20px 60px;
+      overflow-x: hidden;
     }
 
     .section-label {
@@ -619,15 +621,27 @@
     }
 
     @media (max-width: 820px) {
+      :root {
+        --page-scale: .29;
+      }
+
+      body {
+        gap: 14px;
+        padding: 10px 8px 22px;
+      }
+
       .controls {
         flex-direction: column;
         align-items: stretch;
-        gap: 10px;
-        padding: 14px;
+        gap: 8px;
+        padding: 12px;
+        border-radius: 14px;
       }
 
       .ctrl-label {
         width: 100%;
+        font-size: 9px;
+        letter-spacing: 2px;
       }
 
       .ctrl-select,
@@ -643,10 +657,18 @@
 
       .ctrl-btn {
         justify-content: center;
+        font-size: 10px;
+        padding: 10px 12px;
       }
 
       .page {
-        box-shadow: 0 10px 26px rgba(0,0,0,.18);
+        box-shadow: 0 10px 24px rgba(0,0,0,.16);
+      }
+
+      .section-label {
+        font-size: 8px;
+        letter-spacing: 3px;
+        margin-bottom: -18px;
       }
     }
   </style>
@@ -889,6 +911,7 @@
   let isBusy = false;
 
   const PAGE_WIDTH_PX = 1123;
+  const MOBILE_BREAKPOINT = 820;
   const ICON_BUSY = '<div class="spinner"></div> Generando...';
   const ICON_READY = {
     current: btnShareCurrent.innerHTML,
@@ -1025,7 +1048,8 @@
 
   function setResponsiveScale() {
     const availableWidth = Math.max(320, window.innerWidth - 24);
-    const scale = Math.min(1, availableWidth / PAGE_WIDTH_PX);
+    const mobileCap = window.innerWidth <= MOBILE_BREAKPOINT ? 0.29 : 1;
+    const scale = Math.min(mobileCap, availableWidth / PAGE_WIDTH_PX);
     document.documentElement.style.setProperty('--page-scale', String(scale));
   }
 
@@ -1034,17 +1058,32 @@
     const width = Math.round(rect.width) || 1123;
     const height = Math.round(rect.height) || 794;
 
-    const dataUrl = await domtoimage.toJpeg(pageEl, {
-      quality: 1.0,
-      width: width * scale,
-      height: height * scale,
-      style: {
-        transform: `scale(${scale})`,
-        transformOrigin: 'top left',
-        width: width + 'px',
-        height: height + 'px',
-      },
-    });
+    let dataUrl;
+    try {
+      dataUrl = await domtoimage.toJpeg(pageEl, {
+        quality: 1.0,
+        width: width * scale,
+        height: height * scale,
+        style: {
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          width: width + 'px',
+          height: height + 'px',
+        },
+      });
+    } catch (err) {
+      if (typeof html2canvas !== 'function') {
+        throw err;
+      }
+
+      const canvas = await html2canvas(pageEl, {
+        backgroundColor: '#ffffff',
+        scale: Math.max(2, window.devicePixelRatio || 1),
+        useCORS: true,
+        allowTaint: true,
+      });
+      dataUrl = canvas.toDataURL('image/jpeg', 0.98);
+    }
 
     pdf.addImage(dataUrl, 'JPEG', 0, 0, 297, 210, `p${pdf.internal.getNumberOfPages()}`, 'FAST');
   }
@@ -1105,6 +1144,9 @@
         if (err && err.name === 'AbortError') {
           return 'cancelled';
         }
+        if (err && (err.name === 'NotAllowedError' || err.name === 'SecurityError' || err.name === 'DataError')) {
+          return 'unsupported';
+        }
         throw err;
       }
     }
@@ -1121,6 +1163,43 @@
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+  }
+
+  function isMobileSharingContext() {
+    return window.innerWidth <= MOBILE_BREAKPOINT
+      || (navigator.userAgent && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+  }
+
+  function prepareFallbackWindow() {
+    try {
+      const fallbackWindow = window.open('', '_blank');
+      if (fallbackWindow) {
+        fallbackWindow.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Preparando PDF</title><style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#1a2d6b;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:24px;text-align:center}div{max-width:420px}small{display:block;opacity:.8;margin-top:10px;line-height:1.4}</style></head><body><div><h2>Preparando el PDF</h2><small>Cuando termine, se abrirá listo para compartir o guardar.</small></div></body></html>');
+        fallbackWindow.document.close();
+      }
+      return fallbackWindow;
+    } catch {
+      return null;
+    }
+  }
+
+  function presentPdfBlob(blob, fileName, fallbackWindow) {
+    const url = URL.createObjectURL(blob);
+    if (fallbackWindow && !fallbackWindow.closed) {
+      fallbackWindow.location = url;
+      fallbackWindow.focus();
+      return;
+    }
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
 
   function navigate(dir) {
@@ -1233,6 +1312,7 @@
     }
 
     setBusyState(true);
+    const fallbackWindow = isMobileSharingContext() ? prepareFallbackWindow() : null;
 
     try {
       const { blob, fileName } = await buildPdfForStudents([current]);
@@ -1244,11 +1324,15 @@
       );
 
       if (shareResult === 'unsupported') {
-        downloadBlob(blob, fileName);
-        alert('Tu navegador no permite compartir archivos PDF aquí, así que preparé la descarga como respaldo.');
+        presentPdfBlob(blob, fileName, fallbackWindow);
+      } else if (shareResult === 'cancelled' && fallbackWindow && !fallbackWindow.closed) {
+        fallbackWindow.close();
       }
     } catch (e) {
-      alert('Error al generar PDF:\n' + e.message);
+      if (fallbackWindow && !fallbackWindow.closed) {
+        fallbackWindow.close();
+      }
+      alert('No pude preparar el PDF en este celular. Prueba actualizar Safari o usar el botón "Compartir grupo".\n\nDetalle: ' + e.message);
       console.error(e);
     } finally {
       setBusyState(false);
@@ -1262,6 +1346,7 @@
     }
 
     setBusyState(true);
+    const fallbackWindow = isMobileSharingContext() ? prepareFallbackWindow() : null;
 
     try {
       const indexes = alumnos.map((_, i) => i);
@@ -1274,10 +1359,14 @@
       );
 
       if (shareResult === 'unsupported') {
-        downloadBlob(blob, fileName);
-        alert('Tu navegador no permite compartir el PDF grupal aquí, así que lo dejé listo para descargar.');
+        presentPdfBlob(blob, fileName, fallbackWindow);
+      } else if (shareResult === 'cancelled' && fallbackWindow && !fallbackWindow.closed) {
+        fallbackWindow.close();
       }
     } catch (e) {
+      if (fallbackWindow && !fallbackWindow.closed) {
+        fallbackWindow.close();
+      }
       alert('Error al generar el PDF del grupo:\n' + e.message);
       console.error(e);
     } finally {
@@ -1292,6 +1381,7 @@
     }
 
     setBusyState(true);
+    const fallbackWindow = isMobileSharingContext() ? prepareFallbackWindow() : null;
 
     try {
       for (let i = 0; i < alumnos.length; i++) {
@@ -1304,10 +1394,13 @@
         );
 
         if (shareResult === 'unsupported') {
-          downloadBlob(blob, fileName);
+          presentPdfBlob(blob, fileName, fallbackWindow);
         }
       }
     } catch (e) {
+      if (fallbackWindow && !fallbackWindow.closed) {
+        fallbackWindow.close();
+      }
       alert('Error al compartir los diplomas uno por uno:\n' + e.message);
       console.error(e);
     } finally {
