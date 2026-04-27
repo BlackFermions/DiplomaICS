@@ -227,6 +227,12 @@
     body.view-back .section-label.front {
       display: none;
     }
+    body.exporting .page,
+    body.exporting .page.front,
+    body.exporting .page.back,
+    body.exporting .section-label {
+      display: block !important;
+    }
 
     /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
        CARA FRONTAL
@@ -760,7 +766,9 @@
 
       .page {
         box-shadow: 0 10px 32px rgba(0,0,0,.18);
-        margin-bottom: calc((210mm * (1 - var(--page-scale))) + 14px);
+        transform: none;
+        zoom: var(--page-scale);
+        margin-bottom: 14px;
       }
 
       .section-label {
@@ -1212,8 +1220,10 @@
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const originalCurrent = current;
+    const originalScale = document.documentElement.style.getPropertyValue('--page-scale');
 
     document.body.classList.add('exporting');
+    document.documentElement.style.setProperty('--page-scale', '1');
 
     try {
       for (let s = 0; s < studentIndexes.length; s++) {
@@ -1245,6 +1255,11 @@
       current = originalCurrent;
       render(originalCurrent);
       await waitForPaint();
+      if (originalScale) {
+        document.documentElement.style.setProperty('--page-scale', originalScale);
+      } else {
+        document.documentElement.style.removeProperty('--page-scale');
+      }
       document.body.classList.remove('exporting');
     }
   }
@@ -1252,7 +1267,7 @@
   async function sharePdfFile(blob, fileName, title, text) {
     const file = new File([blob], fileName, { type: 'application/pdf' });
 
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    if (navigator.share) {
       try {
         await navigator.share({
           files: [file],
