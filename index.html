@@ -65,6 +65,13 @@
       display: flex;
       gap: 6px;
     }
+    .action-row {
+      display: flex;
+      gap: 6px;
+      flex: 1 1 100%;
+      align-items: center;
+      flex-wrap: wrap;
+    }
     .ctrl-btn {
       font-family: 'Cinzel', serif;
       font-size: 11px;
@@ -110,6 +117,25 @@
       flex-shrink: 0;
     }
     .ctrl-btn-icon svg { width: 18px; height: 18px; }
+    .ctrl-btn-threshold {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+    .action-row .ctrl-btn {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .ctrl-btn-threshold .threshold-value {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      letter-spacing: 1px;
+      font-weight: 700;
+      min-width: 18px;
+      text-align: center;
+    }
     .spinner {
       width: 15px; height: 15px;
       border: 2px solid rgba(255,255,255,.3);
@@ -146,6 +172,12 @@
       flex-direction: column;
       align-items: center;
       gap: 36px;
+    }
+    .face-toggle-wrap {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin-top: -8px;
     }
 
     .share-menu {
@@ -720,19 +752,19 @@
 
     @media (max-width: 820px) {
       :root {
-        --page-scale: .31;
+        --page-scale: .38;
       }
 
       body {
-        gap: 12px;
+        gap: 8px;
         padding: 8px 8px 20px;
       }
 
       .controls {
         flex-direction: column;
         align-items: stretch;
-        gap: 8px;
-        padding: 12px;
+        gap: 6px;
+        padding: 10px;
         border-radius: 14px;
       }
 
@@ -756,7 +788,7 @@
       .ctrl-btn {
         justify-content: center;
         font-size: 10px;
-        padding: 10px 12px;
+        padding: 9px 12px;
       }
 
       .ctrl-btn-icon {
@@ -768,7 +800,7 @@
         box-shadow: 0 10px 32px rgba(0,0,0,.18);
         transform: none;
         zoom: var(--page-scale);
-        margin-bottom: 14px;
+        margin-bottom: 10px;
       }
 
       .section-label {
@@ -777,6 +809,19 @@
 
       .controls {
         max-width: 100%;
+      }
+
+      .certificate-stage {
+        gap: 20px;
+      }
+
+      .action-row {
+        width: 100%;
+      }
+
+      .action-row .ctrl-btn {
+        width: auto;
+        flex: 1 1 0;
       }
     }
   </style>
@@ -795,24 +840,32 @@
     <button class="ctrl-btn ctrl-btn-nav" onclick="navigate(-1)">Anterior</button>
     <button class="ctrl-btn ctrl-btn-nav" onclick="navigate(1)">Siguiente</button>
   </div>
-  <button class="ctrl-btn ctrl-btn-nav ctrl-btn-view" id="btnFaceView" onclick="toggleFaceView()">Ver trasera</button>
-  <button class="ctrl-btn ctrl-btn-print" id="btnDownloadPdf" onclick="downloadCurrentPdf()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-      <polyline points="7 10 12 15 17 10"/>
-      <line x1="12" y1="15" x2="12" y2="3"/>
-    </svg>
-    Descargar PDF
-  </button>
-  <button class="ctrl-btn ctrl-btn-print ctrl-btn-icon" id="btnShareMenu" onclick="openShareMenu()" aria-label="Compartir PDF">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="18" cy="5" r="3"/>
-      <circle cx="6" cy="12" r="3"/>
-      <circle cx="18" cy="19" r="3"/>
-      <path d="M8.6 10.9l6.8-3.8"/>
-      <path d="M8.6 13.1l6.8 3.8"/>
-    </svg>
-  </button>
+  <div class="action-row">
+    <button class="ctrl-btn ctrl-btn-print ctrl-btn-threshold" id="btnThreshold" onclick="setApprovalThreshold()" aria-label="Setear nota aprobatoria">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="8"/>
+        <path d="M12 8v8"/>
+        <path d="M8 12h8"/>
+      </svg>
+      <span class="threshold-value" id="thresholdValue">13</span>
+    </button>
+    <button class="ctrl-btn ctrl-btn-print" id="btnDownloadPdf" onclick="downloadCurrentPdf()" aria-label="Descargar PDF" title="Descargar PDF">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </button>
+    <button class="ctrl-btn ctrl-btn-print ctrl-btn-icon" id="btnShareMenu" onclick="openShareMenu()" aria-label="Compartir PDF" title="Compartir PDF">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="18" cy="5" r="3"/>
+        <circle cx="6" cy="12" r="3"/>
+        <circle cx="18" cy="19" r="3"/>
+        <path d="M8.6 10.9l6.8-3.8"/>
+        <path d="M8.6 13.1l6.8 3.8"/>
+      </svg>
+    </button>
+  </div>
 </div>
 
 <div class="certificate-stage">
@@ -1000,6 +1053,10 @@
 
 </div><!-- /certificate-stage -->
 
+<div class="face-toggle-wrap">
+  <button class="ctrl-btn ctrl-btn-nav ctrl-btn-view" id="btnFaceView" onclick="toggleFaceView()">Ver trasera</button>
+</div>
+
 <div class="share-menu" id="shareMenu" aria-hidden="true">
   <div class="share-menu-panel" role="dialog" aria-modal="true" aria-labelledby="shareMenuTitle">
     <div class="share-menu-title" id="shareMenuTitle">Compartir PDF</div>
@@ -1012,17 +1069,20 @@
 
 <script>
   // El proyecto arranca sin datos y se llena solo al cargar el Excel.
+  const alumnosRaw = [];
   const alumnos = [];
   let current = 0;
+  let approvalThreshold = 13;
 
   const select = document.getElementById('studentSelect');
   const counter = document.getElementById('counter');
   const btnFaceView = document.getElementById('btnFaceView');
+  const btnThreshold = document.getElementById('btnThreshold');
+  const thresholdValue = document.getElementById('thresholdValue');
   const btnDownloadPdf = document.getElementById('btnDownloadPdf');
   const btnShareMenu = document.getElementById('btnShareMenu');
   const shareMenu = document.getElementById('shareMenu');
   const navButtons = document.querySelectorAll('.ctrl-nav .ctrl-btn-nav');
-  const shareButtons = [btnDownloadPdf, btnShareMenu];
   let isBusy = false;
   let activeFace = 'front';
 
@@ -1030,6 +1090,7 @@
   const MOBILE_BREAKPOINT = 820;
   const ICON_BUSY = '<div class="spinner"></div> Generando...';
   const ICON_READY = {
+    threshold: btnThreshold.innerHTML,
     download: btnDownloadPdf.innerHTML,
     share: btnShareMenu.innerHTML,
   };
@@ -1066,27 +1127,48 @@
     };
   }
 
+  function parseGradeValue(value) {
+    const raw = String(value ?? '').trim().replace(',', '.');
+    if (!raw) return NaN;
+    const normalized = raw.match(/-?\d+(\.\d+)?/);
+    return normalized ? Number(normalized[0]) : Number.NaN;
+  }
+
+  function isApprovedStudent(student) {
+    const grade = parseGradeValue(student?.promedio);
+    return Number.isFinite(grade) && grade >= approvalThreshold;
+  }
+
+  function syncApprovalBadge() {
+    thresholdValue.textContent = String(approvalThreshold);
+    btnThreshold.title = `Nota aprobatoria: ${approvalThreshold}`;
+    btnThreshold.setAttribute('aria-label', `Setear nota aprobatoria actual ${approvalThreshold}`);
+  }
+
   function updateControlsState() {
-    const hasData = alumnos.length > 0;
-    select.disabled = !hasData || isBusy;
-    btnFaceView.disabled = !hasData || isBusy;
-    shareButtons.forEach(btn => {
-      btn.disabled = !hasData || isBusy;
-    });
+    const hasRawData = alumnosRaw.length > 0;
+    const hasApprovedData = alumnos.length > 0;
+    select.disabled = !hasApprovedData || isBusy;
+    btnFaceView.disabled = !hasApprovedData || isBusy;
+    btnThreshold.disabled = !hasRawData || isBusy;
+    btnDownloadPdf.disabled = !hasApprovedData || isBusy;
+    btnShareMenu.disabled = !hasApprovedData || isBusy;
     navButtons.forEach(btn => {
-      btn.disabled = !hasData || isBusy;
+      btn.disabled = !hasApprovedData || isBusy;
     });
   }
 
   function setBusyState(busyState, message = ICON_BUSY) {
     isBusy = Boolean(busyState);
-    shareButtons.forEach(btn => {
-      btn.disabled = isBusy || alumnos.length === 0;
-    });
+    btnThreshold.disabled = isBusy || alumnosRaw.length === 0;
+    btnDownloadPdf.disabled = isBusy || alumnos.length === 0;
+    btnShareMenu.disabled = isBusy || alumnos.length === 0;
     if (isBusy) {
+      btnThreshold.innerHTML = message;
       btnDownloadPdf.innerHTML = message;
       btnShareMenu.innerHTML = message;
     } else {
+      btnThreshold.innerHTML = ICON_READY.threshold;
       btnDownloadPdf.innerHTML = ICON_READY.download;
       btnShareMenu.innerHTML = ICON_READY.share;
       updateControlsState();
@@ -1130,6 +1212,25 @@
     updateControlsState();
   }
 
+  function applyApprovalFilter() {
+    alumnos.length = 0;
+    alumnosRaw.forEach(student => {
+      if (isApprovedStudent(student)) {
+        alumnos.push(student);
+      }
+    });
+
+    if (alumnos.length > 0) {
+      current = 0;
+      rebuildSelect();
+      render(current);
+    } else {
+      current = 0;
+      showEmptyState();
+    }
+    syncApprovalBadge();
+  }
+
   function rebuildSelect() {
     select.innerHTML = '';
     alumnos.forEach((a, i) => {
@@ -1159,6 +1260,20 @@
     select.value = idx;
     counter.textContent = `${idx + 1} / ${alumnos.length}`;
     updateControlsState();
+  }
+
+  function setApprovalThreshold() {
+    const input = window.prompt('¿Cuál es la nota aprobatoria?', String(approvalThreshold));
+    if (input === null) return;
+
+    const parsed = parseGradeValue(input);
+    if (!Number.isFinite(parsed)) {
+      alert('Ingresa una nota válida.');
+      return;
+    }
+
+    approvalThreshold = parsed;
+    applyApprovalFilter();
   }
 
   function waitForPaint() {
@@ -1407,19 +1522,20 @@
       }
 
       if (nuevosAlumnos.length > 0) {
-        alumnos.length = 0;
-        nuevosAlumnos.forEach(a => alumnos.push(a));
+        alumnosRaw.length = 0;
+        nuevosAlumnos.forEach(a => alumnosRaw.push(a));
         current = 0;
-        rebuildSelect();
-        render(0);
-        alert(`Se cargaron ${alumnos.length} alumnos del Excel`);
+        applyApprovalFilter();
+        alert(`Se cargaron ${alumnosRaw.length} alumnos del Excel y ${alumnos.length} aprobaron con nota ${approvalThreshold}`);
       } else {
+        alumnosRaw.length = 0;
         alumnos.length = 0;
         showEmptyState();
         alert('No se encontraron datos de alumnos en el archivo');
       }
     } catch (err) {
       console.error(err);
+      alumnosRaw.length = 0;
       alumnos.length = 0;
       showEmptyState();
       alert('Error al leer el archivo Excel: ' + err.message);
@@ -1539,6 +1655,7 @@
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeShareMenu();
   });
+  syncApprovalBadge();
   setResponsiveScale();
   showEmptyState();
 </script>
