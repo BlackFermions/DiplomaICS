@@ -92,6 +92,16 @@
     .ctrl-btn-print:hover:not(:disabled) { background: #58a020; }
     .ctrl-btn-print:disabled { background: #3a6818; opacity: .7; cursor: wait; }
     .ctrl-btn-print svg { width: 15px; height: 15px; }
+    .ctrl-btn-view {
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .ctrl-btn-view:hover { background: rgba(255,255,255,.2); }
+    .ctrl-btn-view.active {
+      background: #fff;
+      color: var(--navy);
+    }
     .ctrl-btn-icon {
       width: 44px;
       min-width: 44px;
@@ -128,82 +138,6 @@
       color: #4a5580;
       text-transform: uppercase;
       margin-bottom: -28px;
-    }
-
-    .mobile-summary {
-      display: none;
-      width: min(100%, 520px);
-      background: linear-gradient(180deg, #11245b, #19347b);
-      color: #fff;
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: 0 16px 42px rgba(0,0,0,.24);
-      border: 1px solid rgba(255,255,255,.08);
-    }
-    .mobile-summary-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 14px;
-    }
-    .mobile-summary-kicker {
-      font-family: 'Cinzel', serif;
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.55);
-    }
-    .mobile-summary-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 27px;
-      line-height: 1.05;
-      margin-top: 6px;
-    }
-    .mobile-summary-counter {
-      font-family: 'Cinzel', serif;
-      font-size: 11px;
-      letter-spacing: 2px;
-      color: rgba(255,255,255,.7);
-      white-space: nowrap;
-      margin-top: 6px;
-    }
-    .mobile-summary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .mobile-summary-card {
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.09);
-      border-radius: 16px;
-      padding: 12px 10px;
-      min-height: 72px;
-    }
-    .mobile-summary-label {
-      display: block;
-      font-family: 'Cinzel', serif;
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.55);
-      margin-bottom: 8px;
-    }
-    .mobile-summary-value {
-      font-family: 'EB Garamond', serif;
-      font-size: 22px;
-      line-height: 1;
-      color: #fff;
-    }
-    .mobile-summary-actions {
-      display: flex;
-      gap: 10px;
-    }
-    .mobile-summary-actions .ctrl-btn {
-      flex: 1;
-      justify-content: center;
-      min-width: 0;
     }
 
     .certificate-stage {
@@ -284,6 +218,14 @@
       transform-origin: top center;
       margin-bottom: calc((210mm * (1 - var(--page-scale))) + 22px);
       will-change: transform;
+    }
+    body.view-front .page.back,
+    body.view-back .page.front {
+      display: none;
+    }
+    body.view-front .section-label.back,
+    body.view-back .section-label.front {
+      display: none;
     }
 
     /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -772,7 +714,7 @@
 
     @media (max-width: 820px) {
       :root {
-        --page-scale: .18;
+        --page-scale: .31;
       }
 
       body {
@@ -816,36 +758,22 @@
         min-width: 0;
       }
 
-      .mobile-summary {
-        display: block;
-      }
-
-      .certificate-stage {
-        position: absolute;
-        left: -10000px;
-        top: 0;
-        width: 297mm;
-        height: 210mm;
-        overflow: hidden;
-        pointer-events: none;
-      }
-
       .page {
-        box-shadow: none;
-        margin-bottom: 0;
+        box-shadow: 0 10px 32px rgba(0,0,0,.18);
+        margin-bottom: calc((210mm * (1 - var(--page-scale))) + 14px);
       }
 
       .section-label {
         display: none;
       }
 
-      .page.front {
-        display: block;
+      .controls {
+        max-width: 100%;
       }
     }
   </style>
 </head>
-<body>
+<body class="view-front">
 
 <!-- BARRA DE CONTROLES -->
 <div class="controls">
@@ -859,6 +787,7 @@
     <button class="ctrl-btn ctrl-btn-nav" onclick="navigate(-1)">Anterior</button>
     <button class="ctrl-btn ctrl-btn-nav" onclick="navigate(1)">Siguiente</button>
   </div>
+  <button class="ctrl-btn ctrl-btn-nav ctrl-btn-view" id="btnFaceView" onclick="toggleFaceView()">Ver trasera</button>
   <button class="ctrl-btn ctrl-btn-print" id="btnDownloadPdf" onclick="downloadCurrentPdf()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -878,36 +807,8 @@
   </button>
 </div>
 
-<div class="mobile-summary" id="mobileSummary">
-  <div class="mobile-summary-head">
-    <div>
-      <div class="mobile-summary-kicker">Diploma listo</div>
-      <div class="mobile-summary-name" id="mobileName">Carga un Excel</div>
-    </div>
-    <div class="mobile-summary-counter" id="mobileCounter">0 / 0</div>
-  </div>
-  <div class="mobile-summary-grid">
-    <div class="mobile-summary-card">
-      <span class="mobile-summary-label">Promedio</span>
-      <div class="mobile-summary-value" id="mobilePromedio">-</div>
-    </div>
-    <div class="mobile-summary-card">
-      <span class="mobile-summary-label">Participación</span>
-      <div class="mobile-summary-value" id="mobileParticipacion">-</div>
-    </div>
-    <div class="mobile-summary-card">
-      <span class="mobile-summary-label">Tareas</span>
-      <div class="mobile-summary-value" id="mobileTareas">-</div>
-    </div>
-  </div>
-  <div class="mobile-summary-actions">
-    <button class="ctrl-btn ctrl-btn-nav" onclick="navigate(-1)">Anterior</button>
-    <button class="ctrl-btn ctrl-btn-nav" onclick="navigate(1)">Siguiente</button>
-  </div>
-</div>
-
 <div class="certificate-stage">
-<p class="section-label">- Cara Frontal -</p>
+<p class="section-label front">- Cara Frontal -</p>
 
 <!-- CARA FRONTAL -->
 <div class="page front">
@@ -975,7 +876,7 @@
 
 </div><!-- /front -->
 
-<p class="section-label">- Cara Trasera -</p>
+<p class="section-label back">- Cara Trasera -</p>
 
 <!-- CARA TRASERA -->
 <div class="page back">
@@ -1108,13 +1009,14 @@
 
   const select = document.getElementById('studentSelect');
   const counter = document.getElementById('counter');
+  const btnFaceView = document.getElementById('btnFaceView');
   const btnDownloadPdf = document.getElementById('btnDownloadPdf');
   const btnShareMenu = document.getElementById('btnShareMenu');
   const shareMenu = document.getElementById('shareMenu');
-  const mobileSummary = document.getElementById('mobileSummary');
   const navButtons = document.querySelectorAll('.ctrl-nav .ctrl-btn-nav');
   const shareButtons = [btnDownloadPdf, btnShareMenu];
   let isBusy = false;
+  let activeFace = 'front';
 
   const PAGE_WIDTH_PX = 1123;
   const MOBILE_BREAKPOINT = 820;
@@ -1159,6 +1061,7 @@
   function updateControlsState() {
     const hasData = alumnos.length > 0;
     select.disabled = !hasData || isBusy;
+    btnFaceView.disabled = !hasData || isBusy;
     shareButtons.forEach(btn => {
       btn.disabled = !hasData || isBusy;
     });
@@ -1190,6 +1093,19 @@
     document.getElementById('notaPromedio').textContent = '';
   }
 
+  function setFaceView(face) {
+    activeFace = face === 'back' ? 'back' : 'front';
+    document.body.classList.toggle('view-front', activeFace === 'front');
+    document.body.classList.toggle('view-back', activeFace === 'back');
+    btnFaceView.classList.toggle('active', activeFace === 'back');
+    btnFaceView.textContent = activeFace === 'front' ? 'Ver trasera' : 'Ver frontal';
+    btnFaceView.setAttribute('aria-pressed', activeFace === 'back' ? 'true' : 'false');
+  }
+
+  function toggleFaceView() {
+    setFaceView(activeFace === 'front' ? 'back' : 'front');
+  }
+
   function showEmptyState() {
     select.innerHTML = '';
 
@@ -1202,11 +1118,7 @@
 
     clearDiploma();
     counter.textContent = '0 / 0';
-    mobileSummary.querySelectorAll('[id^="mobile"]').forEach(el => {
-      if (el.id !== 'mobileCounter') el.textContent = '-';
-    });
-    document.getElementById('mobileName').textContent = 'Carga un Excel';
-    document.getElementById('mobileCounter').textContent = '0 / 0';
+    setFaceView('front');
     updateControlsState();
   }
 
@@ -1236,11 +1148,6 @@
     document.getElementById('notaParticipacion').textContent = a.participacion;
     document.getElementById('notaTareas').textContent = a.tareas;
     document.getElementById('notaPromedio').textContent = a.promedio;
-    document.getElementById('mobileName').textContent = a.nombre;
-    document.getElementById('mobileCounter').textContent = `${idx + 1} / ${alumnos.length}`;
-    document.getElementById('mobilePromedio').textContent = a.promedio || '-';
-    document.getElementById('mobileParticipacion').textContent = a.participacion || '-';
-    document.getElementById('mobileTareas').textContent = a.tareas || '-';
     select.value = idx;
     counter.textContent = `${idx + 1} / ${alumnos.length}`;
     updateControlsState();
@@ -1376,43 +1283,6 @@
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-  }
-
-  function isMobileSharingContext() {
-    return window.innerWidth <= MOBILE_BREAKPOINT
-      || (navigator.userAgent && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
-  }
-
-  function prepareFallbackWindow() {
-    try {
-      const fallbackWindow = window.open('', '_blank');
-      if (fallbackWindow) {
-        fallbackWindow.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Preparando PDF</title><style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#1a2d6b;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:24px;text-align:center}div{max-width:420px}small{display:block;opacity:.8;margin-top:10px;line-height:1.4}</style></head><body><div><h2>Preparando el PDF</h2><small>Cuando termine, se abrirá listo para compartir o guardar.</small></div></body></html>');
-        fallbackWindow.document.close();
-      }
-      return fallbackWindow;
-    } catch {
-      return null;
-    }
-  }
-
-  function presentPdfBlob(blob, fileName, fallbackWindow) {
-    const url = URL.createObjectURL(blob);
-    if (fallbackWindow && !fallbackWindow.closed) {
-      fallbackWindow.location = url;
-      fallbackWindow.focus();
-      return;
-    }
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.rel = 'noopener';
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
 
   function openShareMenu() {
@@ -1567,7 +1437,6 @@
     }
 
     setBusyState(true);
-    const fallbackWindow = isMobileSharingContext() ? prepareFallbackWindow() : null;
 
     try {
       const { blob, fileName } = await buildPdfForStudents([current]);
@@ -1579,14 +1448,9 @@
       );
 
       if (shareResult === 'unsupported') {
-        presentPdfBlob(blob, fileName, fallbackWindow);
-      } else if (shareResult === 'cancelled' && fallbackWindow && !fallbackWindow.closed) {
-        fallbackWindow.close();
+        downloadBlob(blob, fileName);
       }
     } catch (e) {
-      if (fallbackWindow && !fallbackWindow.closed) {
-        fallbackWindow.close();
-      }
       alert('No pude preparar el PDF en este celular. Prueba actualizar Safari o usar "Compartir grupo".\n\nDetalle: ' + e.message);
       console.error(e);
     } finally {
@@ -1601,7 +1465,6 @@
     }
 
     setBusyState(true);
-    const fallbackWindow = isMobileSharingContext() ? prepareFallbackWindow() : null;
 
     try {
       const indexes = alumnos.map((_, i) => i);
@@ -1614,14 +1477,9 @@
       );
 
       if (shareResult === 'unsupported') {
-        presentPdfBlob(blob, fileName, fallbackWindow);
-      } else if (shareResult === 'cancelled' && fallbackWindow && !fallbackWindow.closed) {
-        fallbackWindow.close();
+        downloadBlob(blob, fileName);
       }
     } catch (e) {
-      if (fallbackWindow && !fallbackWindow.closed) {
-        fallbackWindow.close();
-      }
       alert('Error al generar el PDF del grupo:\n' + e.message);
       console.error(e);
     } finally {
@@ -1636,7 +1494,6 @@
     }
 
     setBusyState(true);
-    const fallbackWindow = isMobileSharingContext() ? prepareFallbackWindow() : null;
 
     try {
       for (let i = 0; i < alumnos.length; i++) {
@@ -1649,13 +1506,10 @@
         );
 
         if (shareResult === 'unsupported') {
-          presentPdfBlob(blob, fileName, fallbackWindow);
+          downloadBlob(blob, fileName);
         }
       }
     } catch (e) {
-      if (fallbackWindow && !fallbackWindow.closed) {
-        fallbackWindow.close();
-      }
       alert('Error al compartir los diplomas uno por uno:\n' + e.message);
       console.error(e);
     } finally {
