@@ -92,6 +92,14 @@
     .ctrl-btn-print:hover:not(:disabled) { background: #58a020; }
     .ctrl-btn-print:disabled { background: #3a6818; opacity: .7; cursor: wait; }
     .ctrl-btn-print svg { width: 15px; height: 15px; }
+    .ctrl-btn-icon {
+      width: 44px;
+      min-width: 44px;
+      padding: 10px 0;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ctrl-btn-icon svg { width: 18px; height: 18px; }
     .spinner {
       width: 15px; height: 15px;
       border: 2px solid rgba(255,255,255,.3);
@@ -120,6 +128,148 @@
       color: #4a5580;
       text-transform: uppercase;
       margin-bottom: -28px;
+    }
+
+    .mobile-summary {
+      display: none;
+      width: min(100%, 520px);
+      background: linear-gradient(180deg, #11245b, #19347b);
+      color: #fff;
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 16px 42px rgba(0,0,0,.24);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .mobile-summary-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .mobile-summary-kicker {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.55);
+    }
+    .mobile-summary-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 27px;
+      line-height: 1.05;
+      margin-top: 6px;
+    }
+    .mobile-summary-counter {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,.7);
+      white-space: nowrap;
+      margin-top: 6px;
+    }
+    .mobile-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .mobile-summary-card {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 16px;
+      padding: 12px 10px;
+      min-height: 72px;
+    }
+    .mobile-summary-label {
+      display: block;
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.55);
+      margin-bottom: 8px;
+    }
+    .mobile-summary-value {
+      font-family: 'EB Garamond', serif;
+      font-size: 22px;
+      line-height: 1;
+      color: #fff;
+    }
+    .mobile-summary-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .mobile-summary-actions .ctrl-btn {
+      flex: 1;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .certificate-stage {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 36px;
+    }
+
+    .share-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 15, 38, .58);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+    }
+    .share-menu.open {
+      display: flex;
+    }
+    .share-menu-panel {
+      width: min(100%, 360px);
+      background: #fff;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.35);
+      color: var(--navy);
+      text-align: center;
+    }
+    .share-menu-title {
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .share-menu-text {
+      color: var(--gray);
+      font-size: 16px;
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+    .share-menu-option,
+    .share-menu-close {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 1px;
+      font-size: 11px;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .share-menu-option {
+      background: var(--green);
+      color: #fff;
+    }
+    .share-menu-close {
+      background: #edf1f7;
+      color: var(--gray);
+      margin-bottom: 0;
     }
 
     /* â”€â”€ PÃ¡gina A4 horizontal â”€â”€ */
@@ -622,12 +772,12 @@
 
     @media (max-width: 820px) {
       :root {
-        --page-scale: .29;
+        --page-scale: .18;
       }
 
       body {
-        gap: 14px;
-        padding: 10px 8px 22px;
+        gap: 12px;
+        padding: 8px 8px 20px;
       }
 
       .controls {
@@ -661,14 +811,36 @@
         padding: 10px 12px;
       }
 
+      .ctrl-btn-icon {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .mobile-summary {
+        display: block;
+      }
+
+      .certificate-stage {
+        position: absolute;
+        left: -10000px;
+        top: 0;
+        width: 297mm;
+        height: 210mm;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
       .page {
-        box-shadow: 0 10px 24px rgba(0,0,0,.16);
+        box-shadow: none;
+        margin-bottom: 0;
       }
 
       .section-label {
-        font-size: 8px;
-        letter-spacing: 3px;
-        margin-bottom: -18px;
+        display: none;
+      }
+
+      .page.front {
+        display: block;
       }
     }
   </style>
@@ -687,33 +859,54 @@
     <button class="ctrl-btn ctrl-btn-nav" onclick="navigate(-1)">Anterior</button>
     <button class="ctrl-btn ctrl-btn-nav" onclick="navigate(1)">Siguiente</button>
   </div>
-  <button class="ctrl-btn ctrl-btn-print" id="btnShareCurrent" onclick="shareCurrentPdf()">
+  <button class="ctrl-btn ctrl-btn-print" id="btnDownloadPdf" onclick="downloadCurrentPdf()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/>
-      <path d="M12 16V4"/>
-      <path d="M7 9l5-5 5 5"/>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
     </svg>
-    Compartir actual
+    Descargar PDF
   </button>
-  <button class="ctrl-btn ctrl-btn-print" id="btnShareGroup" onclick="shareGroupPdf()">
+  <button class="ctrl-btn ctrl-btn-print ctrl-btn-icon" id="btnShareMenu" onclick="openShareMenu()" aria-label="Compartir PDF">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <rect x="3" y="4" width="8" height="6" rx="1"/>
-      <rect x="13" y="4" width="8" height="6" rx="1"/>
-      <rect x="3" y="14" width="8" height="6" rx="1"/>
-      <rect x="13" y="14" width="8" height="6" rx="1"/>
+      <circle cx="18" cy="5" r="3"/>
+      <circle cx="6" cy="12" r="3"/>
+      <circle cx="18" cy="19" r="3"/>
+      <path d="M8.6 10.9l6.8-3.8"/>
+      <path d="M8.6 13.1l6.8 3.8"/>
     </svg>
-    Compartir grupo
-  </button>
-  <button class="ctrl-btn ctrl-btn-print" id="btnShareEach" onclick="shareEachPdf()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M12 2v12"/>
-      <path d="M7 9l5 5 5-5"/>
-      <path d="M5 19h14"/>
-    </svg>
-    Compartir uno por uno
   </button>
 </div>
 
+<div class="mobile-summary" id="mobileSummary">
+  <div class="mobile-summary-head">
+    <div>
+      <div class="mobile-summary-kicker">Diploma listo</div>
+      <div class="mobile-summary-name" id="mobileName">Carga un Excel</div>
+    </div>
+    <div class="mobile-summary-counter" id="mobileCounter">0 / 0</div>
+  </div>
+  <div class="mobile-summary-grid">
+    <div class="mobile-summary-card">
+      <span class="mobile-summary-label">Promedio</span>
+      <div class="mobile-summary-value" id="mobilePromedio">-</div>
+    </div>
+    <div class="mobile-summary-card">
+      <span class="mobile-summary-label">Participación</span>
+      <div class="mobile-summary-value" id="mobileParticipacion">-</div>
+    </div>
+    <div class="mobile-summary-card">
+      <span class="mobile-summary-label">Tareas</span>
+      <div class="mobile-summary-value" id="mobileTareas">-</div>
+    </div>
+  </div>
+  <div class="mobile-summary-actions">
+    <button class="ctrl-btn ctrl-btn-nav" onclick="navigate(-1)">Anterior</button>
+    <button class="ctrl-btn ctrl-btn-nav" onclick="navigate(1)">Siguiente</button>
+  </div>
+</div>
+
+<div class="certificate-stage">
 <p class="section-label">- Cara Frontal -</p>
 
 <!-- CARA FRONTAL -->
@@ -896,6 +1089,18 @@
 
 </div><!-- /back -->
 
+</div><!-- /certificate-stage -->
+
+<div class="share-menu" id="shareMenu" aria-hidden="true">
+  <div class="share-menu-panel" role="dialog" aria-modal="true" aria-labelledby="shareMenuTitle">
+    <div class="share-menu-title" id="shareMenuTitle">Compartir PDF</div>
+    <div class="share-menu-text">¿Quieres compartir el diploma actual o todo el grupo?</div>
+    <button class="share-menu-option" onclick="shareFromMenu('current')">Actual</button>
+    <button class="share-menu-option" onclick="shareFromMenu('group')">Todo el grupo</button>
+    <button class="share-menu-close" onclick="closeShareMenu()">Cancelar</button>
+  </div>
+</div>
+
 <script>
   // El proyecto arranca sin datos y se llena solo al cargar el Excel.
   const alumnos = [];
@@ -903,20 +1108,20 @@
 
   const select = document.getElementById('studentSelect');
   const counter = document.getElementById('counter');
-  const btnShareCurrent = document.getElementById('btnShareCurrent');
-  const btnShareGroup = document.getElementById('btnShareGroup');
-  const btnShareEach = document.getElementById('btnShareEach');
+  const btnDownloadPdf = document.getElementById('btnDownloadPdf');
+  const btnShareMenu = document.getElementById('btnShareMenu');
+  const shareMenu = document.getElementById('shareMenu');
+  const mobileSummary = document.getElementById('mobileSummary');
   const navButtons = document.querySelectorAll('.ctrl-nav .ctrl-btn-nav');
-  const shareButtons = [btnShareCurrent, btnShareGroup, btnShareEach];
+  const shareButtons = [btnDownloadPdf, btnShareMenu];
   let isBusy = false;
 
   const PAGE_WIDTH_PX = 1123;
   const MOBILE_BREAKPOINT = 820;
   const ICON_BUSY = '<div class="spinner"></div> Generando...';
   const ICON_READY = {
-    current: btnShareCurrent.innerHTML,
-    group: btnShareGroup.innerHTML,
-    each: btnShareEach.innerHTML,
+    download: btnDownloadPdf.innerHTML,
+    share: btnShareMenu.innerHTML,
   };
 
   function normalizeText(value) {
@@ -968,13 +1173,11 @@
       btn.disabled = isBusy || alumnos.length === 0;
     });
     if (isBusy) {
-      btnShareCurrent.innerHTML = message;
-      btnShareGroup.innerHTML = message;
-      btnShareEach.innerHTML = message;
+      btnDownloadPdf.innerHTML = message;
+      btnShareMenu.innerHTML = message;
     } else {
-      btnShareCurrent.innerHTML = ICON_READY.current;
-      btnShareGroup.innerHTML = ICON_READY.group;
-      btnShareEach.innerHTML = ICON_READY.each;
+      btnDownloadPdf.innerHTML = ICON_READY.download;
+      btnShareMenu.innerHTML = ICON_READY.share;
       updateControlsState();
     }
   }
@@ -999,6 +1202,11 @@
 
     clearDiploma();
     counter.textContent = '0 / 0';
+    mobileSummary.querySelectorAll('[id^="mobile"]').forEach(el => {
+      if (el.id !== 'mobileCounter') el.textContent = '-';
+    });
+    document.getElementById('mobileName').textContent = 'Carga un Excel';
+    document.getElementById('mobileCounter').textContent = '0 / 0';
     updateControlsState();
   }
 
@@ -1028,6 +1236,11 @@
     document.getElementById('notaParticipacion').textContent = a.participacion;
     document.getElementById('notaTareas').textContent = a.tareas;
     document.getElementById('notaPromedio').textContent = a.promedio;
+    document.getElementById('mobileName').textContent = a.nombre;
+    document.getElementById('mobileCounter').textContent = `${idx + 1} / ${alumnos.length}`;
+    document.getElementById('mobilePromedio').textContent = a.promedio || '-';
+    document.getElementById('mobileParticipacion').textContent = a.participacion || '-';
+    document.getElementById('mobileTareas').textContent = a.tareas || '-';
     select.value = idx;
     counter.textContent = `${idx + 1} / ${alumnos.length}`;
     updateControlsState();
@@ -1202,6 +1415,29 @@
     setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
 
+  function openShareMenu() {
+    if (!alumnos.length) {
+      alert('Primero carga un archivo Excel con alumnos.');
+      return;
+    }
+    shareMenu.classList.add('open');
+    shareMenu.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeShareMenu() {
+    shareMenu.classList.remove('open');
+    shareMenu.setAttribute('aria-hidden', 'true');
+  }
+
+  async function shareFromMenu(target) {
+    closeShareMenu();
+    if (target === 'group') {
+      await shareGroupPdf();
+      return;
+    }
+    await shareCurrentPdf();
+  }
+
   function navigate(dir) {
     if (!alumnos.length) return;
     current = (current + dir + alumnos.length) % alumnos.length;
@@ -1305,6 +1541,25 @@
     }
   });
 
+  async function downloadCurrentPdf() {
+    if (!alumnos.length) {
+      alert('Primero carga un archivo Excel con alumnos.');
+      return;
+    }
+
+    setBusyState(true);
+
+    try {
+      const { blob, fileName } = await buildPdfForStudents([current]);
+      downloadBlob(blob, fileName);
+    } catch (e) {
+      alert('No pude preparar el PDF para descarga.\n\nDetalle: ' + e.message);
+      console.error(e);
+    } finally {
+      setBusyState(false);
+    }
+  }
+
   async function shareCurrentPdf() {
     if (!alumnos.length) {
       alert('Primero carga un archivo Excel con alumnos.');
@@ -1332,7 +1587,7 @@
       if (fallbackWindow && !fallbackWindow.closed) {
         fallbackWindow.close();
       }
-      alert('No pude preparar el PDF en este celular. Prueba actualizar Safari o usar el botón "Compartir grupo".\n\nDetalle: ' + e.message);
+      alert('No pude preparar el PDF en este celular. Prueba actualizar Safari o usar "Compartir grupo".\n\nDetalle: ' + e.message);
       console.error(e);
     } finally {
       setBusyState(false);
@@ -1409,6 +1664,12 @@
   }
 
   window.addEventListener('resize', setResponsiveScale);
+  shareMenu.addEventListener('click', e => {
+    if (e.target === shareMenu) closeShareMenu();
+  });
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeShareMenu();
+  });
   setResponsiveScale();
   showEmptyState();
 </script>
